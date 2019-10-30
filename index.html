@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Exchange Rates</title>
+    <style>
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: center; 
+        }
+        .curr_from_val {
+            border: 1px solid #ccc;
+            padding: 1px 10px; 
+            font-size: 16px;
+            width: 70px;
+            height: 21px;
+        }
+        .curr_from, .curr_to {
+            border-color: #ccc;
+            font-size: 16px;
+            padding: 2px 10px;
+            width: 80px;
+        }
+        .curr_val {
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 1px 10px; 
+            font-size: 12px;
+            width: 85px;
+            height: 21px;
+        }
+
+        .column p {
+            text-align: center;
+            border: 1px solid #ccc;
+            padding: 1px 10px; 
+            font-size: 16px;
+            width: 30px;
+            height: 21px;
+        }
+        .btn-conv {
+            background-color: #888;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            height: 25px;
+            width: 100px;
+            margin: 0 5px;
+            color: #fff;
+            border: 1px solid rgb(102, 101, 101);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="column">
+            <input type="number" value="1" name="curr_from_val" class="curr_from_val" placeholder="Enter amount">
+        </div>
+        <div class="column">
+            <select class="curr_from">
+                <option selected value="UAH">UAH</option> 
+            </select>
+        </div>
+        <div class="column">
+            <p>to</p>
+        </div>
+        <div class="column">
+            <select class="curr_to">
+                
+            </select>
+        </div class="column">
+        <button class="btn-conv">Convert</button>
+        <div class="column">
+            <input type="number" class = "curr_val" readonly placeholder="Converting...">
+        </div>
+    </div>
+    <script>
+        const currFrom = document.querySelector('.curr_from');
+        const currTo = document.querySelector('.curr_to');
+        const userValue = document.querySelector('.curr_from_val');
+        const result = document.querySelector('.curr_val');
+        fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json')
+            .then(res => res.json())
+            .then(function(res) {
+                res.forEach(function(element) {
+                    const fromOption = document.createElement('option');
+                    fromOption.setAttribute('value', element.cc);
+                    fromOption.innerText = element.cc;
+                    currFrom.append(fromOption);
+                })
+                res.forEach(function(element) {
+                    const convOption = document.createElement('option');
+                    convOption.setAttribute('value', element.cc);
+                    convOption.innerText = element.cc;
+                    currTo.append(convOption);
+                })
+                const convertBtn = document.querySelector('.btn-conv');
+                convertBtn.addEventListener('click', e => {
+                    if(currFrom.value === 'UAH') {
+                        const selectedCurr = res.find( el => {
+                            if(currTo.value == el.cc) {
+                                return el;
+                            }
+                        })
+                        const oneHrivnaCost = 1 / selectedCurr.rate;
+                        const convertedValue =  Math.round( (oneHrivnaCost * userValue.value) * 100) / 100;
+                        result.value = convertedValue;
+                    } else {
+                        const fromCurr = res.find( el => {
+                            if(currFrom.value == el.cc) {
+                                return el;
+                            }
+                        })
+                        const convertedFrom =  Math.round( (fromCurr.rate * userValue.value) * 100) / 100;
+                        const selectedCurr = res.find( el => {
+                            if(currTo.value == el.cc) {
+                                return el;
+                            }
+                        })
+                        const oneHrivnaCost = 1 / selectedCurr.rate;
+                        const convertedValue =  Math.round( (oneHrivnaCost * convertedFrom) * 100) / 100;
+                        result.value = convertedValue;
+                    }
+                })
+            })
+    </script>
+</body>
+</html>
