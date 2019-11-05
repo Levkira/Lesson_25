@@ -82,14 +82,14 @@
         const result = document.querySelector('.curr_val');
         fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json')
             .then(res => res.json())
-            .then(function(res) {
-                res.forEach(function(element) {
+            .then(res => {
+                res.forEach(element => {
                     const fromOption = document.createElement('option');
                     fromOption.setAttribute('value', element.cc);
                     fromOption.innerText = element.cc;
                     currFrom.append(fromOption);
                 })
-                res.forEach(function(element) {
+                res.forEach(element => {
                     const convOption = document.createElement('option');
                     convOption.setAttribute('value', element.cc);
                     convOption.innerText = element.cc;
